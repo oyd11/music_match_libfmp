@@ -1,3 +1,13 @@
 
 FMP_notebooks_data/
 
+ # Ignore the uploads folder
+ uploads/
+
+*~
+
+__pycache__/
+*.py[cod]
+
+*.log
+

@@ -1,0 +1,25 @@
+
+services:
+  audio_http:
+    build: .
+    ports:
+      - "5000:13337"
+    volumes:
+      - .:/app_hotswap
+    environment:
+      - PORT=13337
+
+  audio_http_test:
+    profiles: ["test"] # only runs with dev profile
+    build:
+      context: .
+    ports:
+      - "5000:13337"
+    volumes:
+      - .:/app_hotswap
+    environment:
+      - PORT=13337
+    stdin_open: true  # Keep the container open for interactive sessions
+    tty: true         # Allocate a pseudo-TTY for the container
+    entrypoint: ["/bin/bash"]
+

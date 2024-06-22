@@ -2,3 +2,5 @@ libfmp==1.2.6
 libfmp[tests]
 jupyter==1.0.0
 ipyfilechooser==0.6.0
+Flask==3.0.3
+gunicorn==22.0.0
