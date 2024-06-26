@@ -174,13 +174,14 @@ def compute_matching_function(C_D, C_Q, tol_freq=1, tol_time=1):
     """
     L = C_D.shape[1]
     N = C_Q.shape[1]
-    M = L - N
+    M = L - N + 1
     assert M >= 0, "Query must be shorter than document"
-    Delta = np.zeros(L)
-    for m in range(M + 1):
+    Delta = np.zeros(M)
+    for m in range(M):
         C_D_crop = C_D[:, m:m+N]
         TP, FN, FP, C_AND = match_binary_matrices_tol(
             C_D_crop, C_Q, tol_freq=tol_freq, tol_time=tol_time)
+        logger.info(f'{TP=}')
         Delta[m] = TP
     shift_max = np.argmax(Delta)
     return Delta, shift_max
@@ -223,4 +224,3 @@ def tst(fn_D):
         return delta, offset
 
     return match_with_D
-
