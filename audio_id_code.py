@@ -38,17 +38,25 @@ def compute_constellation_map(Y, dist_freq=7, dist_time=7, thresh=0.01):
 
 def compute_spectrogram(fn, Fs=22050,
                         duration=None,
-                        N=2048, H=1024,
+                        n_fft=2048, n_hop=1024,
                         bin_max=128, frame_max=None):
     x, Fs = librosa.load(fn, sr=Fs, duration=duration, mono=True)
-    x_duration = len(x) / Fs  # noqa
-    X = librosa.stft(x, n_fft=N, hop_length=H, win_length=N, window='hann')
+    duration_sec = len(x) / Fs  # noqa
+    X = librosa.stft(
+        x, n_fft=n_fft, hop_length=n_hop, win_length=n_hop, window='hann')
     if bin_max is None:
         bin_max = X.shape[0]
     if frame_max is None:
         frame_max = X.shape[1]
     Y = np.abs(X[:bin_max, :frame_max])
-    return Y, x_duration
+    info = {
+        'duration_sec': duration_sec,
+        'n_fft': n_fft,
+        'n_hop': n_hop,
+        'Fs': Fs,
+        'bin_sec': n_hop / Fs,
+    }
+    return Y, info
 
 
 def match_binary_matrices_tol(C_ref, C_est, tol_freq=0, tol_time=0):
@@ -119,10 +127,11 @@ def tst(fn_D):
 
     def match_with_D(fn_Q):
         logger.info(f'match_with_D called! {fn_D=} {fn_Q=}')
-        Y_D, t_D = compute_spectrogram(fn_D, duration=None)
-        Y_Q, t_Q = compute_spectrogram(fn_Q, duration=None)
+        Y_D, info_D = compute_spectrogram(fn_D)
+        Y_Q, info_Q = compute_spectrogram(fn_Q)
+        bin_seconds = info_D['bin_sec']
         logger.info(
-            f'Match dims: D: {Y_D.size}, {t_D}sec; {Y_Q.size}, {t_Q}sec ')
+            f'Match dims: D: {Y_D.size}, {info_D["duration_sec"]}sec; {Y_Q.size}, {info_Q["duration_sec"]}sec ')
         Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
         Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
 
@@ -143,8 +152,10 @@ def tst(fn_D):
         plt.savefig('match.png')
 
         offset = int(shift_max_1)
-        delta = int(Delta_1[offset])
+        offset_sec = bin_seconds * offset
+        num_matches = int(Delta_1[offset])
+        logger.info(f'MATCHED:{num_matches=};{offset=} {offset_sec=}')
 
-        return delta, offset
+        return num_matches, offset_sec
 
     return match_with_D
