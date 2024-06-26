@@ -15,57 +15,6 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
 
 
-def plot_constellation_map(Cmap, Y=None, xlim=None, ylim=None, title='',
-                           xlabel='Time (sample)', ylabel='Frequency (bins)',
-                           s=5, color='r', marker='o', figsize=(7, 3), dpi=72):
-    """Plot constellation map
-
-    Notebook: C7/C7S1_AudioIdentification.ipynb
-
-    Args:
-        Cmap: Constellation map given as boolean mask for peak structure
-        Y: Spectrogram representation (Default value = None)
-        xlim: Limits for x-axis (Default value = None)
-        ylim: Limits for y-axis (Default value = None)
-        title: Title for plot (Default value = '')
-        xlabel: Label for x-axis (Default value = 'Time (sample)')
-        ylabel: Label for y-axis (Default value = 'Frequency (bins)')
-        s: Size of dots in scatter plot (Default value = 5)
-        color: Color used for scatter plot (Default value = 'r')
-        marker: Marker for peaks (Default value = 'o')
-        figsize: Width, height in inches (Default value = (7, 3))
-        dpi: Dots per inch (Default value = 72)
-
-    Returns:
-        fig: The created matplotlib figure
-        ax: The used axes.
-        im: The image plot
-    """
-    if Cmap.ndim > 1:
-        (K, N) = Cmap.shape
-    else:
-        K = Cmap.shape[0]
-        N = 1
-    if Y is None:
-        Y = np.zeros((K, N))
-    fig, ax = plt.subplots(1, 1, figsize=figsize, dpi=dpi)
-    im = ax.imshow(Y, origin='lower', aspect='auto', cmap='gray_r', interpolation='nearest')
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.set_title(title)
-    Fs = 1
-    if xlim is None:
-        xlim = [-0.5/Fs, (N-0.5)/Fs]
-    if ylim is None:
-        ylim = [-0.5/Fs, (K-0.5)/Fs]
-    ax.set_xlim(xlim)
-    ax.set_ylim(ylim)
-    n, k = np.argwhere(Cmap == 1).T
-    ax.scatter(k, n, color=color, s=s, marker=marker)
-    plt.tight_layout()
-    return fig, ax, im
-
-
 def compute_constellation_map(Y, dist_freq=7, dist_time=7, thresh=0.01):
     """Compute constellation map (implementation using image processing)
 
@@ -97,9 +46,9 @@ def compute_spectrogram(fn, Fs=22050,
     if bin_max is None:
         bin_max = X.shape[0]
     if frame_max is None:
-        frame_max = X.shape[0]
+        frame_max = X.shape[1]
     Y = np.abs(X[:bin_max, :frame_max])
-    return Y
+    return Y, x_duration
 
 
 def match_binary_matrices_tol(C_ref, C_est, tol_freq=0, tol_time=0):
@@ -170,14 +119,12 @@ def tst(fn_D):
 
     def match_with_D(fn_Q):
         logger.info(f'match_with_D called! {fn_D=} {fn_Q=}')
-        Y_D = compute_spectrogram(fn_D, duration=None)
-
-        Y_Q = compute_spectrogram(fn_Q, duration=None)
-
-        logger.info(f'{Y_D.size=} {Y_Q.size=}')
+        Y_D, t_D = compute_spectrogram(fn_D, duration=None)
+        Y_Q, t_Q = compute_spectrogram(fn_Q, duration=None)
+        logger.info(
+            f'Match dims: D: {Y_D.size}, {t_D}sec; {Y_Q.size}, {t_Q}sec ')
         Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
         Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
-        logger.info(f'{Cmap_D.size=} {Cmap_Q.size=}')
 
         Delta_0, shift_max_0 = compute_matching_function(Cmap_D, Cmap_Q, tol_freq=0, tol_time=0)
         Delta_1, shift_max_1 = compute_matching_function(Cmap_D, Cmap_Q, tol_freq=1, tol_time=1)
