@@ -134,27 +134,27 @@ def match_binary_matrices_tol(C_ref, C_est, tol_freq=0, tol_time=0):
     return TP, FN, FP, C_AND
 
 
-def compare_constellation_maps(fn_wav_D, fn_wav_Q, dist_freq=11, dist_time=5,
-                               tol_freq=1, tol_time=1):
-    Y_D = compute_spectrogram(fn_wav_D, duration=seconds_limit)
-    Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
-    Y_Q = compute_spectrogram(fn_wav_Q, duration=seconds_limit)
-    Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
+# def compare_constellation_maps(fn_wav_D, fn_wav_Q, dist_freq=11, dist_time=5,
+#                                tol_freq=1, tol_time=1):
+#     Y_D = compute_spectrogram(fn_wav_D, duration=seconds_limit)
+#     Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
+#     Y_Q = compute_spectrogram(fn_wav_Q, duration=seconds_limit)
+#     Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
 
-    TP, FN, FP, Cmap_AND = match_binary_matrices_tol(
-        Cmap_D, Cmap_Q, tol_freq=tol_freq, tol_time=tol_time)
+#     TP, FN, FP, Cmap_AND = match_binary_matrices_tol(
+#         Cmap_D, Cmap_Q, tol_freq=tol_freq, tol_time=tol_time)
 
-    title=r'Matching result (tol_freq=%d and tol_time=%d): TP=%d, FN=%d, FP=%d' % \
-        (tol_freq,tol_time, TP, FN, FP)
-    fig, ax, im = plot_constellation_map(Cmap_AND, color='green', s=200, marker='+', title=title)
-    n, k = np.argwhere(Cmap_D == 1).T
-    ax.scatter(k, n, color='r', s=50, marker='o')
-    n, k = np.argwhere(Cmap_Q == 1).T
-    ax.scatter(k, n, color='cyan', s=20, marker='o')
-    plt.legend(['Matches (TP)', 'Reference', 'Estimation'], loc='upper right', framealpha=1)
-    plt.tight_layout()
-    # plt.show()
-    plt.savefig('tst.png')
+#     title=r'Matching result (tol_freq=%d and tol_time=%d): TP=%d, FN=%d, FP=%d' % \
+#         (tol_freq,tol_time, TP, FN, FP)
+#     fig, ax, im = plot_constellation_map(Cmap_AND, color='green', s=200, marker='+', title=title)
+#     n, k = np.argwhere(Cmap_D == 1).T
+#     ax.scatter(k, n, color='r', s=50, marker='o')
+#     n, k = np.argwhere(Cmap_Q == 1).T
+#     ax.scatter(k, n, color='cyan', s=20, marker='o')
+#     plt.legend(['Matches (TP)', 'Reference', 'Estimation'], loc='upper right', framealpha=1)
+#     plt.tight_layout()
+#     # plt.show()
+#     plt.savefig('tst.png')
 
 
 def compute_matching_function(C_D, C_Q, tol_freq=1, tol_time=1):
@@ -181,7 +181,6 @@ def compute_matching_function(C_D, C_Q, tol_freq=1, tol_time=1):
         C_D_crop = C_D[:, m:m+N]
         TP, FN, FP, C_AND = match_binary_matrices_tol(
             C_D_crop, C_Q, tol_freq=tol_freq, tol_time=tol_time)
-        logger.info(f'{TP=}')
         Delta[m] = TP
     shift_max = np.argmax(Delta)
     return Delta, shift_max
@@ -193,8 +192,9 @@ def tst(fn_D):
 
     def match_with_D(fn_Q):
         logger.info(f'match_with_D called! {fn_D=} {fn_Q=}')
-        Y_D = compute_spectrogram(fn_D)
-        Y_Q = compute_spectrogram(fn_Q)
+        Y_D = compute_spectrogram(fn_D, duration=None)
+
+        Y_Q = compute_spectrogram(fn_Q, duration=None)
 
         logger.info(f'{Y_D.size=} {Y_Q.size=}')
         Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
