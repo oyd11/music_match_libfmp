@@ -21,7 +21,7 @@ import libfmp.c6
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
 
-duration = 20.0  # seconds
+seconds_limit = 15.0  # seconds, for example files
 
 
 def plot_constellation_map(Cmap, Y=None, xlim=None, ylim=None, title='',
@@ -108,7 +108,8 @@ def compute_spectrogram(fn, Fs=22050, duration=None, N=2048, H=1024, bin_max=128
     return Y
 
 
-# Y = compute_spectrogram(fdialog.selected, duration=duration)
+# Y = compute_spectrogram(fdialog.selected, duration=seconds_limit)
+# Y_D = compute_spectrogram(fn_wav_D, duration=seconds_limit)
 
 
 def match_binary_matrices_tol(C_ref, C_est, tol_freq=0, tol_time=0):
@@ -145,9 +146,9 @@ def match_binary_matrices_tol(C_ref, C_est, tol_freq=0, tol_time=0):
 
 def compare_constellation_maps(fn_wav_D, fn_wav_Q, dist_freq=11, dist_time=5,
                                tol_freq=1, tol_time=1):
-    Y_D = compute_spectrogram(fn_wav_D, duration=duration)
+    Y_D = compute_spectrogram(fn_wav_D, duration=seconds_limit)
     Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
-    Y_Q = compute_spectrogram(fn_wav_Q, duration=duration)
+    Y_Q = compute_spectrogram(fn_wav_Q, duration=seconds_limit)
     Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
 
     TP, FN, FP, Cmap_AND = match_binary_matrices_tol(
