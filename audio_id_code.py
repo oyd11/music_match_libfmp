@@ -21,6 +21,7 @@ import libfmp.c6
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
 
+
 seconds_limit = 15.0  # seconds, for example files
 
 
@@ -217,8 +218,8 @@ def compute_matching_function(C_D, C_Q, tol_freq=1, tol_time=1):
     Delta = np.zeros(L)
     for m in range(M + 1):
         C_D_crop = C_D[:, m:m+N]
-        TP, FN, FP, C_AND = match_binary_matrices_tol(C_D_crop, C_Q,
-                                                      tol_freq=tol_freq, tol_time=tol_time)
+        TP, FN, FP, C_AND = match_binary_matrices_tol(
+            C_D_crop, C_Q, tol_freq=tol_freq, tol_time=tol_time)
         Delta[m] = TP
     shift_max = np.argmax(Delta)
     return Delta, shift_max
@@ -227,15 +228,16 @@ def compute_matching_function(C_D, C_Q, tol_freq=1, tol_time=1):
 def tst(fn_D):
     dist_freq = 11
     dist_time = 5
-    logger.info(f'tst called! {fn_D=}')
 
     def match_with_D(fn_Q):
         logger.info(f'match_with_D called! {fn_D=} {fn_Q=}')
         Y_D = compute_spectrogram(fn_D)
-        Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
-
         Y_Q = compute_spectrogram(fn_Q)
+
+        logger.info(f'{Y_D.size=} {Y_Q.size=}')
+        Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
         Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
+        logger.info(f'{Cmap_D.size=} {Cmap_Q.size=}')
 
         Delta_0, shift_max_0 = compute_matching_function(Cmap_D, Cmap_Q, tol_freq=0, tol_time=0)
         Delta_1, shift_max_1 = compute_matching_function(Cmap_D, Cmap_Q, tol_freq=1, tol_time=1)
