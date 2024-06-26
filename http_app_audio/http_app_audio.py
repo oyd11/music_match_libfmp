@@ -1,5 +1,14 @@
-from flask import Flask, request, jsonify, render_template
 import os
+import logging
+
+from flask import Flask, request, jsonify, render_template
+from werkzeug.utils import secure_filename
+
+import audio_id_code
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
+
 
 app = Flask(__name__)
 
@@ -13,9 +22,7 @@ app.config['INDEX_UPLOAD_FOLDER'] = INDEX_UPLOAD_FOLDER
 app.config['QUERY_UPLOAD_FOLDER'] = QUERY_UPLOAD_FOLDER
 
 
-@app.route('/api/index', methods=['POST'])
-@app.route('/index', methods=['POST'])
-def index():
+def get_filename(request):
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
 
@@ -23,34 +30,65 @@ def index():
     if file.filename == '':
         return jsonify({"error": "No file selected for uploading"}), 400
 
-    if file:
-        filename = os.path.join(
+    return secure_filename(file.filename), 200
+
+
+do_query = None
+
+
+@app.route('/api/index', methods=['POST'])
+@app.route('/index', methods=['POST'])
+def index():
+    s, ret_code = get_filename(request)
+    if ret_code != 200:
+        return s, ret_code
+
+    filename = s
+    path_str = os.path.realpath(
+        os.path.join(
             app.config['INDEX_UPLOAD_FOLDER'],
-            file.filename)
-        file.save(filename)
-        return (
-            jsonify({"message": f"File successfully uploaded to {filename}"}),
-            200)
+            filename))
+
+    file = request.files['file']
+
+    file.save(path_str)
+
+    logger.info(f'index saved: {path_str}')
+    global do_query
+
+    do_query = audio_id_code.tst(path_str)
+    logger.info(f' {do_query=}')
+
+    return (
+        jsonify({"message": f"File successfully uploaded to {filename}"}),
+        200)
 
 
 @app.route('/api/query', methods=['POST'])
 @app.route('/query', methods=['POST'])
 def query():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
+    s, ret_code = get_filename(request)
+    if ret_code != 200:
+        return s, ret_code
+
+    filename = s
+    path_str = os.path.realpath(
+        os.path.join(
+            app.config['QUERY_UPLOAD_FOLDER'],
+            filename))
 
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No file selected for uploading"}), 400
 
-    if file:
-        filename = os.path.join(
-            app.config['QUERY_UPLOAD_FOLDER'],
-            file.filename)
-        file.save(filename)
-        return (
-            jsonify({"message": f"File successfully uploaded to {filename}"}),
-            200)
+    logger.info(f'query saved: {path_str}')
+    logger.info(f'{do_query=}')
+
+    file.save(path_str)
+    logger.info('upload completed')
+
+    do_query(path_str)
+    return (
+        jsonify({"message": f"File successfully uploaded to {filename}"}),
+        200)
 
 
 @app.route('/audio_db')

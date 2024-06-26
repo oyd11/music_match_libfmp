@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 
-## Enable Python3.10
+## Enable Python3.8 on Ubuntu 22.04:
 # # Install dependencies
 # RUN apt-get update && apt-get install -y \
 #     software-properties-common
@@ -38,7 +38,6 @@ COPY . .
 ENV PYTHONUNBUFFERED TRUE
 
 # export port
-EXPOSE 13337
+EXPOSE 5000
 # Run the server
-ENTRYPOINT ["/app/run_server.sh"]
-# CMD ["/app/run_server.sh", 13337]
+CMD ["/app/run_server.sh"]
