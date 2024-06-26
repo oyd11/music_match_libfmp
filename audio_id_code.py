@@ -249,6 +249,7 @@ def tst(fn_D):
                     'tol_freq=3, tol_time=2'], loc='upper right', framealpha=1)
         # plt.show()
         plt.savefig('match.png')
+        return Delta_1, shift_max_1
 
     return match_with_D
 
