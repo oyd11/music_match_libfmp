@@ -21,7 +21,7 @@ import libfmp.c6
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
 
-duration = 15.0  # seconds
+duration = 20.0  # seconds
 
 
 def plot_constellation_map(Cmap, Y=None, xlim=None, ylim=None, title='',
@@ -89,7 +89,9 @@ def compute_constellation_map(Y, dist_freq=7, dist_time=7, thresh=0.01):
     Returns:
         Cmap (np.ndarray): Boolean mask for peak structure (same size as Y)
     """
-    result = ndimage.maximum_filter(Y, size=[2*dist_freq+1, 2*dist_time+1], mode='constant')
+    result = ndimage.maximum_filter(
+        Y, size=[2*dist_freq+1, 2*dist_time+1],
+        mode='constant')
     Cmap = np.logical_and(Y == result, result > thresh)
     return Cmap
 
@@ -249,7 +251,12 @@ def tst(fn_D):
                     'tol_freq=3, tol_time=2'], loc='upper right', framealpha=1)
         # plt.show()
         plt.savefig('match.png')
-        return Delta_1, shift_max_1
+
+        offset = int(shift_max_1)
+        delta = int(Delta_1[offset])
+        logger.info(f'{delta=} {offset=} {shift_max_1=} {Delta_1[offset]}')
+
+        return delta, offset
 
     return match_with_D
 
