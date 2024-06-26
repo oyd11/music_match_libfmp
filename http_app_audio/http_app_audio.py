@@ -1,6 +1,6 @@
 import os
 from os import path
-from path import realpath
+from os.path import realpath
 import logging
 import sys
 
@@ -10,7 +10,8 @@ from werkzeug.utils import secure_filename
 import audio_id_code
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
 
 
 app = Flask(__name__)
@@ -61,8 +62,9 @@ def index():
     logger.info(f'index saved: {path_str}')
     global do_query
 
+    logger.info(f'BFORE {do_query=}')
     do_query = audio_id_code.tst(path_str)
-    logger.info(f' {do_query=}')
+    logger.info(f'AFTER {do_query=}')
 
     return (
         jsonify({"message": f"File successfully uploaded to {filename}"}),

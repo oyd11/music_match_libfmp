@@ -21,7 +21,7 @@ import libfmp.c6
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
 
-seconds_limit = 15.0
+duration = 15.0  # seconds
 
 
 def plot_constellation_map(Cmap, Y=None, xlim=None, ylim=None, title='',
@@ -106,7 +106,6 @@ def compute_spectrogram(fn, Fs=22050, duration=None, N=2048, H=1024, bin_max=128
     return Y
 
 
-duration = 20.0  # seconds
 # Y = compute_spectrogram(fdialog.selected, duration=duration)
 
 
@@ -144,9 +143,9 @@ def match_binary_matrices_tol(C_ref, C_est, tol_freq=0, tol_time=0):
 
 def compare_constellation_maps(fn_wav_D, fn_wav_Q, dist_freq=11, dist_time=5,
                                tol_freq=1, tol_time=1):
-    Y_D = compute_spectrogram(fn_wav_D, duration=seconds_limit)
+    Y_D = compute_spectrogram(fn_wav_D, duration=duration)
     Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
-    Y_Q = compute_spectrogram(fn_wav_Q, duration=seconds_limit)
+    Y_Q = compute_spectrogram(fn_wav_Q, duration=duration)
     Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
 
     TP, FN, FP, Cmap_AND = match_binary_matrices_tol(
@@ -191,10 +190,70 @@ def main_tst():
 # print('====== Reference: Original; Estimation: Talking ======')
 # compare_constellation_maps(fn_wav_D, fn_wav_Q, tol_freq=tol_freq, tol_time=tol_time)
 
-# tst
+
+#############
+def compute_matching_function(C_D, C_Q, tol_freq=1, tol_time=1):
+    """Computes matching function for constellation maps
+
+    Notebook: C7/C7S1_AudioIdentification.ipynb
+
+    Args:
+        C_D (np.ndarray): Binary matrix used as dababase document
+        C_Q (np.ndarray): Binary matrix used as query document
+        tol_freq (int): Tolerance in frequency direction (vertical) (Default value = 1)
+        tol_time (int): Tolerance in time direction (horizontal) (Default value = 1)
+
+    Returns:
+        Delta (np.ndarray): Matching function
+        shift_max (int): Optimal shift position maximizing Delta
+    """
+    L = C_D.shape[1]
+    N = C_Q.shape[1]
+    M = L - N
+    assert M >= 0, "Query must be shorter than document"
+    Delta = np.zeros(L)
+    for m in range(M + 1):
+        C_D_crop = C_D[:, m:m+N]
+        TP, FN, FP, C_AND = match_binary_matrices_tol(C_D_crop, C_Q,
+                                                      tol_freq=tol_freq, tol_time=tol_time)
+        Delta[m] = TP
+    shift_max = np.argmax(Delta)
+    return Delta, shift_max
 
 
-def tst(path_str):
+def tst(fn_D):
+    dist_freq = 11
+    dist_time = 5
+    logger.info(f'tst called! {fn_D=}')
+
+    def match_with_D(fn_Q):
+        logger.info(f'match_with_D called! {fn_D=} {fn_Q=}')
+        Y_D = compute_spectrogram(fn_D)
+        Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
+
+        Y_Q = compute_spectrogram(fn_Q)
+        Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
+
+        Delta_0, shift_max_0 = compute_matching_function(Cmap_D, Cmap_Q, tol_freq=0, tol_time=0)
+        Delta_1, shift_max_1 = compute_matching_function(Cmap_D, Cmap_Q, tol_freq=1, tol_time=1)
+        Delta_2, shift_max_2 = compute_matching_function(Cmap_D, Cmap_Q, tol_freq=3, tol_time=2)
+
+        y_max = Delta_2[shift_max_2] + 1
+        fig, ax, line = libfmp.b.plot_signal(Delta_0, ylim=[0, y_max], color='g',
+                                            xlabel='Shift (samples)', ylabel='Number of matching peaks',
+                                            figsize=(7, 3))
+        plt.title('Matching functions for different tolerance parameters')
+        ax.plot(Delta_1, color='r')
+        ax.plot(Delta_2, color='b')
+        plt.legend(['tol_freq=0, tol_time=0', 'tol_freq=1, tol_time=1',
+                    'tol_freq=3, tol_time=2'], loc='upper right', framealpha=1)
+        # plt.show()
+        plt.savefig('match.png')
+
+    return match_with_D
+
+
+def compare_q(path_str):
     logger.info(f'tst called! {path_str=}')
     tol_freq = 1
     tol_time = 1
@@ -205,5 +264,4 @@ def tst(path_str):
         logger.info(f'====== Reference: {song_fn}; Query: {query_fn} ======')
         compare_constellation_maps(song_fn, query_fn,
                                    tol_freq=tol_freq, tol_time=tol_time)
-
     return compare_to_query
