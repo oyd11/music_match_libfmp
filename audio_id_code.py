@@ -1,25 +1,18 @@
 
 
-import os, sys
 import logging
 
 import numpy as np
-from numba import jit
 import librosa
-#from scipy import signal
 from scipy import ndimage
 from matplotlib import pyplot as plt
-import IPython.display as ipd
-import time
 
-sys.path.append('..')
 import libfmp.b
-import libfmp.c2
-import libfmp.c6
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
 
 
 seconds_limit = 15.0  # seconds, for example files
@@ -109,10 +102,6 @@ def compute_spectrogram(fn, Fs=22050, duration=None, N=2048, H=1024, bin_max=128
     return Y
 
 
-# Y = compute_spectrogram(fdialog.selected, duration=seconds_limit)
-# Y_D = compute_spectrogram(fn_wav_D, duration=seconds_limit)
-
-
 def match_binary_matrices_tol(C_ref, C_est, tol_freq=0, tol_time=0):
     """| Compare binary matrices with tolerance
     | Note: The tolerance parameters should be smaller than the minimum distance of
@@ -168,34 +157,6 @@ def compare_constellation_maps(fn_wav_D, fn_wav_Q, dist_freq=11, dist_time=5,
     plt.savefig('tst.png')
 
 
-def main_tst():
-    # TODO: input here, from notebook, script or http
-    fn_wav_D = '/home/kobi/tmpMusic/Gnarls Barkley - Crazy (Official Video) [4K Remaster] [-N4jf6rtyuw].opus'
-    fn_wav_Q = '/home/kobi/tmpMusic/phoneSpeakerInRoom/crazy.mp3'
-    tol_freq = 0
-    tol_time = 0
-    print('====== Reference: Original; Estimation: Noise ======')
-    compare_constellation_maps(fn_wav_D, fn_wav_Q, tol_freq=tol_freq, tol_time=tol_time)
-
-    tol_freq = 1
-    tol_time = 1
-    print('====== Reference: Original; Estimation: Noise ======')
-    compare_constellation_maps(fn_wav_D, fn_wav_Q, tol_freq=tol_freq, tol_time=tol_time)
-
-# fn_wav_Q = wav_dict['Coding'][-1]
-# tol_freq = 1
-# tol_time = 1
-# print('====== Reference: Original; Estimation: Coding ======')
-# compare_constellation_maps(fn_wav_D, fn_wav_Q, tol_freq=tol_freq, tol_time=tol_time)
-
-# fn_wav_Q = wav_dict['Talking'][-1]
-# tol_freq = 1
-# tol_time = 1
-# print('====== Reference: Original; Estimation: Talking ======')
-# compare_constellation_maps(fn_wav_D, fn_wav_Q, tol_freq=tol_freq, tol_time=tol_time)
-
-
-#############
 def compute_matching_function(C_D, C_Q, tol_freq=1, tol_time=1):
     """Computes matching function for constellation maps
 
@@ -263,16 +224,3 @@ def tst(fn_D):
 
     return match_with_D
 
-
-def compare_q(path_str):
-    logger.info(f'tst called! {path_str=}')
-    tol_freq = 1
-    tol_time = 1
-    song_fn = path_str
-    logger.info(f'====== Reference: {song_fn}; closure')
-
-    def compare_to_query(query_fn):
-        logger.info(f'====== Reference: {song_fn}; Query: {query_fn} ======')
-        compare_constellation_maps(song_fn, query_fn,
-                                   tol_freq=tol_freq, tol_time=tol_time)
-    return compare_to_query

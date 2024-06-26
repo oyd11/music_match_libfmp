@@ -61,10 +61,7 @@ def index():
 
     logger.info(f'index saved: {path_str}')
     global do_query
-
-    logger.info(f'BFORE {do_query=}')
     do_query = audio_id_code.tst(path_str)
-    logger.info(f'AFTER {do_query=}')
 
     return (
         jsonify({"message": f"File successfully uploaded to {filename}"}),
@@ -84,7 +81,6 @@ def query():
     file = request.files['file']
 
     logger.info(f'query saved: {path_str}')
-    logger.info(f'DDD {do_query=}')
 
     file.save(path_str)
     logger.info('upload completed')
