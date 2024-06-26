@@ -1,8 +1,14 @@
 
 
 import logging
+from dataclasses import dataclass
+
+from typing import Dict
+
 
 import numpy as np
+import numpy.typing as npt
+# from nptyping import NDArray, Bool
 import librosa
 from scipy import ndimage
 from matplotlib import pyplot as plt
@@ -13,6 +19,16 @@ import libfmp.b
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
+
+
+@dataclass
+class AudioInfo:
+    filename: str
+    audio_info: Dict
+
+
+g_indexed_info: Dict[str, AudioInfo] = {}
+g_indexed_cmaps: Dict[str, npt.NDArray[np.bool_]] = {}
 
 
 def compute_constellation_map(Y, dist_freq=7, dist_time=7, thresh=0.01):
@@ -119,6 +135,20 @@ def compute_matching_function(C_D, C_Q, tol_freq=1, tol_time=1):
         Delta[m] = int(TP)
     shift_max = int(np.argmax(Delta))
     return Delta, shift_max
+
+
+def index_file(fn_D):
+    global g_indexed_info
+    global g_indexed_cmaps
+
+    Y_D, info_D = compute_spectrogram(fn_D)
+    Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
+
+    hash_key = fn_D  # Currently the filename
+
+    g_indexed_info[hash_key] = AudioInfo(fn_D, info_D)
+    g_indexed_cmaps[hash_key] = Cmap_D
+    return info_D
 
 
 def tst(fn_D):

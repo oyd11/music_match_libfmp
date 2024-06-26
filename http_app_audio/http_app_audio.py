@@ -42,6 +42,7 @@ def get_filename(request):
     return secure_filename(file.filename), 200
 
 
+# Testing hack
 do_query = None
 
 
@@ -60,11 +61,14 @@ def index():
     file.save(path_str)
 
     logger.info(f'index saved: {path_str}')
-    global do_query
-    do_query = audio_id_code.tst(path_str)
+
+    info = audio_id_code.index_file(path_str)
 
     return (
-        jsonify({"message": f"File successfully uploaded to {filename}"}),
+        jsonify({
+            "message": f"File successfully uploaded to {filename}",
+            "info": info},
+            ),
         200)
 
 
@@ -92,6 +96,55 @@ def query():
             "num_matches": num_matches,
             "offset_sec": offset_sec}),
         200)
+
+
+
+@app.route('/api/index_1', methods=['POST'])
+def index_1():
+    s, ret_code = get_filename(request)
+    if ret_code != 200:
+        return s, ret_code
+
+    filename = s
+    path_str = realpath(path.join(app.config['INDEX_UPLOAD_FOLDER'], filename))
+
+    file = request.files['file']
+
+    file.save(path_str)
+
+    logger.info(f'index saved: {path_str}')
+    global do_query
+    do_query = audio_id_code.tst(path_str)
+
+    return (
+        jsonify({"message": f"File successfully uploaded to {filename}"}),
+        200)
+
+
+@app.route('/api/query_1', methods=['POST'])
+def query_1():
+    s, ret_code = get_filename(request)
+    if ret_code != 200:
+        return s, ret_code
+
+    filename = s
+    path_str = realpath(path.join(app.config['QUERY_UPLOAD_FOLDER'], filename))
+
+    file = request.files['file']
+
+    logger.info(f'query saved: {path_str}')
+
+    file.save(path_str)
+    logger.info('upload completed')
+
+    num_matches, offset_sec = do_query(path_str)
+    return (
+        jsonify({
+            "message": f"File successfully uploaded to {filename}",
+            "num_matches": num_matches,
+            "offset_sec": offset_sec}),
+        200)
+
 
 
 @app.route('/audio_db')
