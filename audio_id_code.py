@@ -15,9 +15,6 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s:%(message)s', level=logging.INFO)
 
 
-seconds_limit = 15.0  # seconds, for example files
-
-
 def plot_constellation_map(Cmap, Y=None, xlim=None, ylim=None, title='',
                            xlabel='Time (sample)', ylabel='Frequency (bins)',
                            s=5, color='r', marker='o', figsize=(7, 3), dpi=72):
@@ -84,13 +81,16 @@ def compute_constellation_map(Y, dist_freq=7, dist_time=7, thresh=0.01):
         Cmap (np.ndarray): Boolean mask for peak structure (same size as Y)
     """
     result = ndimage.maximum_filter(
-        Y, size=[2*dist_freq+1, 2*dist_time+1],
+        Y, size=[2 * dist_freq + 1, 2 * dist_time + 1],
         mode='constant')
     Cmap = np.logical_and(Y == result, result > thresh)
     return Cmap
 
 
-def compute_spectrogram(fn, Fs=22050, duration=None, N=2048, H=1024, bin_max=128, frame_max=None):
+def compute_spectrogram(fn, Fs=22050,
+                        duration=None,
+                        N=2048, H=1024,
+                        bin_max=128, frame_max=None):
     x, Fs = librosa.load(fn, sr=Fs, duration=duration, mono=True)
     x_duration = len(x) / Fs  # noqa
     X = librosa.stft(x, n_fft=N, hop_length=H, win_length=N, window='hann')
@@ -125,36 +125,14 @@ def match_binary_matrices_tol(C_ref, C_est, tol_freq=0, tol_time=0):
     N = np.sum(C_ref)
     M = np.sum(C_est)
     # Expand C_est with 2D-max-filter using the tolerance parameters
-    C_est_max = ndimage.maximum_filter(C_est, size=(2*tol_freq+1, 2*tol_time+1),
-                                       mode='constant')
+    C_est_max = ndimage.maximum_filter(
+        C_est, size=(2 * tol_freq + 1, 2 * tol_time + 1),
+        mode='constant')
     C_AND = np.logical_and(C_est_max, C_ref)
     TP = np.sum(C_AND)
     FN = N - TP
     FP = M - TP
     return TP, FN, FP, C_AND
-
-
-# def compare_constellation_maps(fn_wav_D, fn_wav_Q, dist_freq=11, dist_time=5,
-#                                tol_freq=1, tol_time=1):
-#     Y_D = compute_spectrogram(fn_wav_D, duration=seconds_limit)
-#     Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
-#     Y_Q = compute_spectrogram(fn_wav_Q, duration=seconds_limit)
-#     Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
-
-#     TP, FN, FP, Cmap_AND = match_binary_matrices_tol(
-#         Cmap_D, Cmap_Q, tol_freq=tol_freq, tol_time=tol_time)
-
-#     title=r'Matching result (tol_freq=%d and tol_time=%d): TP=%d, FN=%d, FP=%d' % \
-#         (tol_freq,tol_time, TP, FN, FP)
-#     fig, ax, im = plot_constellation_map(Cmap_AND, color='green', s=200, marker='+', title=title)
-#     n, k = np.argwhere(Cmap_D == 1).T
-#     ax.scatter(k, n, color='r', s=50, marker='o')
-#     n, k = np.argwhere(Cmap_Q == 1).T
-#     ax.scatter(k, n, color='cyan', s=20, marker='o')
-#     plt.legend(['Matches (TP)', 'Reference', 'Estimation'], loc='upper right', framealpha=1)
-#     plt.tight_layout()
-#     # plt.show()
-#     plt.savefig('tst.png')
 
 
 def compute_matching_function(C_D, C_Q, tol_freq=1, tol_time=1):
@@ -181,8 +159,8 @@ def compute_matching_function(C_D, C_Q, tol_freq=1, tol_time=1):
         C_D_crop = C_D[:, m:m+N]
         TP, FN, FP, C_AND = match_binary_matrices_tol(
             C_D_crop, C_Q, tol_freq=tol_freq, tol_time=tol_time)
-        Delta[m] = TP
-    shift_max = np.argmax(Delta)
+        Delta[m] = int(TP)
+    shift_max = int(np.argmax(Delta))
     return Delta, shift_max
 
 
@@ -219,7 +197,6 @@ def tst(fn_D):
 
         offset = int(shift_max_1)
         delta = int(Delta_1[offset])
-        logger.info(f'{delta=} {offset=} {shift_max_1=} {Delta_1[offset]}')
 
         return delta, offset
 
