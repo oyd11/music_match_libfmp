@@ -85,12 +85,12 @@ def query():
     file.save(path_str)
     logger.info('upload completed')
 
-    delta, offset = do_query(path_str)
+    num_matches, offset_sec = do_query(path_str)
     return (
         jsonify({
             "message": f"File successfully uploaded to {filename}",
-            "delta": delta,
-            "offset": offset}),
+            "num_matches": num_matches,
+            "offset_sec": offset_sec}),
         200)
 
 
