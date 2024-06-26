@@ -1,5 +1,8 @@
 import os
+from os import path
+from path import realpath
 import logging
+import sys
 
 from flask import Flask, request, jsonify, render_template
 from werkzeug.utils import secure_filename
@@ -13,13 +16,18 @@ logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s', level=loggin
 app = Flask(__name__)
 
 # Set up directories relative to the current working directory
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-INDEX_UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'uploads', 'index')
-QUERY_UPLOAD_FOLDER = os.path.join(BASE_DIR, '..', 'uploads', 'query')
+BASE_DIR = realpath(path.dirname(path.abspath(__file__)))
+INDEX_UPLOAD_FOLDER = realpath(path.join(
+    BASE_DIR, '..', 'uploads', 'index'))
+QUERY_UPLOAD_FOLDER = realpath(path.join(
+    BASE_DIR, '..', 'uploads', 'query'))
 os.makedirs(INDEX_UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(QUERY_UPLOAD_FOLDER, exist_ok=True)
 app.config['INDEX_UPLOAD_FOLDER'] = INDEX_UPLOAD_FOLDER
 app.config['QUERY_UPLOAD_FOLDER'] = QUERY_UPLOAD_FOLDER
+
+
+logger.info(f'{__name__} Loaded, python-version: {sys.version} {app.config=}')
 
 
 def get_filename(request):
@@ -44,10 +52,7 @@ def index():
         return s, ret_code
 
     filename = s
-    path_str = os.path.realpath(
-        os.path.join(
-            app.config['INDEX_UPLOAD_FOLDER'],
-            filename))
+    path_str = realpath(path.join(app.config['INDEX_UPLOAD_FOLDER'], filename))
 
     file = request.files['file']
 
@@ -72,10 +77,7 @@ def query():
         return s, ret_code
 
     filename = s
-    path_str = os.path.realpath(
-        os.path.join(
-            app.config['QUERY_UPLOAD_FOLDER'],
-            filename))
+    path_str = realpath(path.join(app.config['QUERY_UPLOAD_FOLDER'], filename))
 
     file = request.files['file']
 
