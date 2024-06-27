@@ -178,6 +178,7 @@ def query_all(fn_Q):
     offsets = np.zeros(num_indexed, dtype=float)
     filenames = np.zeros(num_indexed, dtype=str)
 
+    logging.info(f'QUERY for: {fn_Q}: {num_indexed=}')
     ind = 0
     for hash_key, Cmap_D in g_indexed_cmaps.items():
         filename = g_indexed_info[hash_key].filename
