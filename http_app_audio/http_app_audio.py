@@ -95,7 +95,7 @@ def query():
         jsonify({
             "message": f"File successfully uploaded to {filename}",
             "stats": stats,
-            "choice": choice_info,}),
+            "choice": choice_info, }),
         200)
 
 
