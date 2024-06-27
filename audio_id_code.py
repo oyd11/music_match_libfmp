@@ -154,13 +154,7 @@ def index_file(fn_D):
     return info_D
 
 
-def find_matches_DQ(Cmap_D, fn_Q):
-    dist_freq = 11
-    dist_time = 5
-
-    Y_Q, info_Q = compute_spectrogram(fn_Q)
-    bin_seconds = info_Q['bin_sec']
-    Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
+def find_matches_DQ(Cmap_D, Cmap_Q, bin_seconds):
     Delta, shift_max = compute_matching_function(
         Cmap_D, Cmap_Q, tol_freq=1, tol_time=1)
 
@@ -176,6 +170,7 @@ def query_all(fn_Q):
     dist_time = 5
 
     Y_Q, info_Q = compute_spectrogram(fn_Q)
+    bin_seconds = info_Q['bin_sec']
     Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
 
     num_indexed = len(g_indexed_info)
@@ -186,7 +181,8 @@ def query_all(fn_Q):
     ind = 0
     for hash_key, Cmap_D in g_indexed_cmaps.items():
         filename = g_indexed_info[hash_key].filename
-        num_matches, offset_sec = find_matches_DQ(Cmap_D, Cmap_Q)
+
+        num_matches, offset_sec = find_matches_DQ(Cmap_D, Cmap_Q, bin_seconds)
 
         logging.info(f'{num_matches=} {offset_sec=} {filename=}')
 
