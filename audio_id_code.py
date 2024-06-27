@@ -3,7 +3,7 @@
 import logging
 from dataclasses import dataclass
 from typing import Dict
-from os.path import basename
+from os.path import basename, splitext
 
 
 import numpy as np
@@ -174,14 +174,15 @@ def query_all(fn_Q):
     Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
 
     num_indexed = len(g_indexed_info)
-    matches_count = np.zeros(num_indexed, dtype=int)
-    offsets = np.zeros(num_indexed, dtype=float)
-    filenames = np.zeros(num_indexed, dtype=str)
+    matches_count = [0] * num_indexed
+    offsets = [0.0] * num_indexed
+    # filenames = np.zeros(num_indexed, dtype=str)
+    filenames = [''] * num_indexed
 
     logging.info(f'QUERY for: {fn_Q}: {num_indexed=}')
     ind = 0
     for hash_key, Cmap_D in g_indexed_cmaps.items():
-        name = basename(g_indexed_info[hash_key].filename)
+        name = splitext(basename(g_indexed_info[hash_key].filename))[0]
 
         num_matches, offset_sec = find_matches_DQ(Cmap_D, Cmap_Q, bin_seconds)
 
