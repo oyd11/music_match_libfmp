@@ -27,10 +27,10 @@ mkdir -p $UPLOADS_FOLDER/query || exit 1
 
 if [ "$DEV" == "dev" ]; then
 	echo Development mode
-	python3 http_app_audio/http_app_audio.py
+	python3 http_app_audio/http_app_audio.py | tee -a http_app_audio.dev.log
 else
 	echo Release mode, using gunicorn:
-	gunicorn -w 1 -b 0.0.0.0:5000 http_app_audio.http_app_audio:app
+	gunicorn -w 1 -b 0.0.0.0:5000 http_app_audio.http_app_audio:app   | tee -a http_app_audio.log
 
 	# More than one worker only after we have shared indexing between threads..
 	# gunicorn -w 4 -b 0.0.0.0:5000 http_app_audio.http_app_audio:app
