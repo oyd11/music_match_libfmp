@@ -188,7 +188,7 @@ def query_all(fn_Q):
             Cmap_D, Cmap_Q, tol_freq=1, tol_time=1)
 
         matches_count[ind] = num_matches
-        offsets[ind] = num_matches
+        offsets[ind] = offset_sec
         filenames[ind] = filename
 
         ind += 1
