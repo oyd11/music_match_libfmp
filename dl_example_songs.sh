@@ -14,7 +14,6 @@ for url in "${urls[@]}" ; do
 	echo url=$url:
 	yt-dlp -x --audio-format opus $url
 	echo Done:$url:
-	break
 done
 
 popd 
