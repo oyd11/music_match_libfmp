@@ -12,7 +12,7 @@ cd input_audio
 
 for url in "${urls[@]}" ; do
 	echo url=$url:
-	echo	yt-dlp -x --audio-format mp3 $url
+	yt-dlp -x --audio-format opus $url
 	echo Done:$url:
 	break
 done

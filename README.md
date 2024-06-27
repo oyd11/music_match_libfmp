@@ -16,10 +16,15 @@ https://www.audiolabs-erlangen.de/resources/MIR/FMP/C7/C7S1_AudioIdentification.
 ```bash
 . ./mk_venv.sh  # create expected env
 . ./venv.sh     # activate virtual-env
+pip install -r requirements.txt  # install required packages into venv
 
-
+./run_server.sh      # setup expected folders, and run server, on port 5000, production version
+./run_server.sh dev  # same, but run unsafe debug version
 ```
 
+## Get example tracks
+
+## Indexing and querying
 
 ```bash
 ✗ ./index_example.sh 5000  # index example files, to port 5000, or 5001 in the Docker example
@@ -34,7 +39,7 @@ https://www.audiolabs-erlangen.de/resources/MIR/FMP/C7/C7S1_AudioIdentification.
   },
   "message": "File successfully uploaded to Gnarls_Barkley_-_Crazy_Official_Video_4K_Remaster_-N4jf6rtyuw.opus"
 }
-+ curl http://127.0.0.1:5001/index -F 'file=@input_audio/Boogie Down Productions - My Philosophy (Official HD Video) [h1vKOchATXs].opus'
++ curl http://127.0.0.1:5000/index -F 'file=@input_audio/Boogie Down Productions - My Philosophy (Official HD Video) [h1vKOchATXs].opus'
 {
   "info": {
     "Fs": 22050,
@@ -47,6 +52,8 @@ https://www.audiolabs-erlangen.de/resources/MIR/FMP/C7/C7S1_AudioIdentification.
 }
 
 ✗ ./query_example.sh 5000
+# recording of the same track, played from a mobile phone from offset 18.25 seconds
++ curl http://127.0.0.1:5000/query -F file=@input_audio/phoneSpeakerInRoom/crazy_ph_part.mp3
 {
   "choice": [
     "Gnarls_Barkley_-_Crazy_Official_Video_4K_Remaster_-N4jf6rtyuw",
