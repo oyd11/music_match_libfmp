@@ -87,14 +87,15 @@ def query():
     logger.info(f'query saved: {path_str}')
 
     file.save(path_str)
-    logger.info('upload completed')
+    logger.info(f'upload completed: saved as {path_str}')
+    choice_info, stats = audio_id_code.query_all(path_str)
 
     num_matches, offset_sec = do_query(path_str)
     return (
         jsonify({
             "message": f"File successfully uploaded to {filename}",
-            "num_matches": num_matches,
-            "offset_sec": offset_sec}),
+            "stats": stats,
+            "choice": choice_info,}),
         200)
 
 

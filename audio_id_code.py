@@ -141,6 +141,9 @@ def index_file(fn_D):
     global g_indexed_info
     global g_indexed_cmaps
 
+    dist_freq = 11
+    dist_time = 5
+
     Y_D, info_D = compute_spectrogram(fn_D)
     Cmap_D = compute_constellation_map(Y_D, dist_freq, dist_time)
 
@@ -149,6 +152,60 @@ def index_file(fn_D):
     g_indexed_info[hash_key] = AudioInfo(fn_D, info_D)
     g_indexed_cmaps[hash_key] = Cmap_D
     return info_D
+
+def qwe(Cmap_D, fn_Q):
+    dist_freq = 11
+    dist_time = 5
+
+    Y_Q, info_Q = compute_spectrogram(fn_Q)
+    bin_seconds = info_Q['bin_sec']
+    Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
+    Delta, shift_max = compute_matching_function(Cmap_D, Cmap_Q, tol_freq=1, tol_time=1)
+
+    offset = int(shift_max)
+    offset_sec = bin_seconds * offset
+    num_matches = int(Delta[offset])
+    return num_matches, offset_sec
+
+
+def query_all(fn_Q):
+
+    dist_freq = 11
+    dist_time = 5
+
+    Y_Q, info_Q = compute_spectrogram(fn_Q)
+    Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
+
+    num_indexed = len(g_indexed_info)
+    matches_count = np.zeros(num_indexed, dtype=int)
+    offsets = np.zeros(num_indexed, dtype=float)
+    filenames = np.zeros(num_indexed, dtype=str)
+
+    ind = 0
+    for hash_key, Cmap_D in g_indexed_cmaps.items():
+        filename = g_indexed_info[hash_key].filename
+        num_matches, offset_sec = compute_matching_function(
+            Cmap_D, Cmap_Q, tol_freq=1, tol_time=1)
+
+        matches_count[ind] = num_matches
+        offsets[ind] = num_matches
+        filenames[ind] = filename
+
+        ind += 1
+
+    stats = tuple(zip(matches_count, offsets, filenames))
+
+    logger.info(
+        f'QUERY_ALL: vs: {fn_Q} info: {info_Q} -> {num_indexed=} {stats=}')
+
+    ind_argmax = np.argmax(matches_count)
+
+    num_matches = matches_count[ind_argmax]
+    offset_sec = offsets[ind_argmax]
+    target_filename = filenames[ind_argmax]
+    choice_info = (target_filename, offset_sec, num_matches)
+
+    return choice_info, stats
 
 
 def tst(fn_D):
