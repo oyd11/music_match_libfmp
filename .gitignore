@@ -2,7 +2,9 @@
 FMP_notebooks_data/
 
  # Ignore the uploads folder
- uploads/
+uploads/
+
+input_audio/
 
 *~
 
