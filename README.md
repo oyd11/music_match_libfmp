@@ -25,9 +25,20 @@ pip install -r requirements.txt  # install required packages into venv
 ## Indexing and querying
 
 After the server is up, these endpoints should work:
+ * http://127.0.0.1:5001/index - POST
+ * http://127.0.0.1:5001/query - POST
 
+Using example scripts, or browsing to <http://127.0.0.1:5001/upload> (described below)
+
+Example scripts (require audio)
 ```bash
 ✗ ./index_example.sh 5000  # index example files, to port 5000, or 5001 in the Docker example
+# Or:
+✗ ./index_all.sh 5001  # iterate all files
+```
+
+Yields:
+```python
 + curl http://127.0.0.1:5000/index -F 'file=@input_audio/Gnarls Barkley - Crazy (Official Video) [4K Remaster] [-N4jf6rtyuw].opus'
 {
   "info": {
@@ -50,8 +61,13 @@ After the server is up, these endpoints should work:
   },
   "message": "File successfully uploaded to Boogie_Down_Productions_-_My_Philosophy_Official_HD_Video_h1vKOchATXs.opus"
 }
+```
 
+```bash
 ✗ ./query_example.sh 5000
+```
+
+```python
 # recording of the same track, played from a mobile phone from offset 18.25 seconds
 + curl http://127.0.0.1:5000/query -F file=@input_audio/phoneSpeakerInRoom/crazy_ph_part.mp3
 {
@@ -83,6 +99,7 @@ After the server is up, these endpoints should work:
 # See: https://github.com/yt-dlp/
 # possibly:
 # wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.local/bin/yt-dlp
+# chmod 755 ~/.local/bin/yt-dlp
 ./dl_example_songs.sh  # download URLs extracted from example_songs.md, into './input_audio
 ```
 

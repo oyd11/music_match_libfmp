@@ -68,13 +68,11 @@ The Beatles - I Am The Walrus
 https://www.youtube.com/watch?v=z-GUjA67mdc
 The Stranglers - Golden Brown
 
-
 https://www.youtube.com/watch?v=5IsSpAOD6K8
 Talking Heads - Once in a Lifetime
 
 https://www.youtube.com/watch?v=-Qylhk6jsT0
 Talking Heads - Psycho Killer
-
 
 ##########
 The Beatles - Act Naturally
