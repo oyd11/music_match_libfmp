@@ -9,8 +9,8 @@ https://www.audiolabs-erlangen.de/resources/MIR/FMP/C7/C7S1_AudioIdentification.
 ## Running server in Docker
 
 ```bash
-sudo docker compose build
-sudo docker compose up
+docker compose build
+docker compose up
 ```
 
 ## Installing locally
