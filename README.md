@@ -9,6 +9,8 @@ https://www.audiolabs-erlangen.de/resources/MIR/FMP/C7/C7S1_AudioIdentification.
 ## Running server in Docker
 
 ```bash
+sudo docker compose build
+sudo docker compose up
 ```
 
 ## Installing locally
@@ -21,8 +23,6 @@ pip install -r requirements.txt  # install required packages into venv
 ./run_server.sh      # setup expected folders, and run server, on port 5000, production version
 ./run_server.sh dev  # same, but run unsafe debug version
 ```
-
-## Get example tracks
 
 ## Indexing and querying
 
@@ -74,4 +74,14 @@ pip install -r requirements.txt  # install required packages into venv
     ]
   ]
 }
+```
+
+## Downloading example songs from Youtube
+
+```bash
+# assumes installation of yt-dlp
+# See: https://github.com/yt-dlp/
+# possibly:
+# wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.local/bin/yt-dlp
+./dl_example_songs.sh  # download URLs extracted from example_songs.md, into './input_audio
 ```
