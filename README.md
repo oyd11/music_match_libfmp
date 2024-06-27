@@ -4,8 +4,6 @@ Playing with Musical Fingerprints, With the Jupyter notebooks provided at:
 
 https://www.audiolabs-erlangen.de/resources/MIR/FMP/C7/C7S1_AudioIdentification.html
 
-
-
 ## Running server in Docker
 
 ```bash
@@ -13,7 +11,7 @@ docker compose build
 docker compose up
 ```
 
-## Installing locally
+## Or: Installing locally
 
 ```bash
 . ./mk_venv.sh  # create expected env
@@ -25,6 +23,8 @@ pip install -r requirements.txt  # install required packages into venv
 ```
 
 ## Indexing and querying
+
+After the server is up, these endpoints should work:
 
 ```bash
 ✗ ./index_example.sh 5000  # index example files, to port 5000, or 5001 in the Docker example

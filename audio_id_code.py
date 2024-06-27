@@ -176,7 +176,6 @@ def query_all(fn_Q):
     num_indexed = len(g_indexed_info)
     matches_count = [0] * num_indexed
     offsets = [0.0] * num_indexed
-    # filenames = np.zeros(num_indexed, dtype=str)
     filenames = [''] * num_indexed
 
     logging.info(f'QUERY for: {fn_Q}: {num_indexed=}')
