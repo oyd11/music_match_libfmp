@@ -29,5 +29,8 @@ if [ "$DEV" == "dev" ]; then
 	python3 http_app_audio/http_app_audio.py
 else
 	echo Release mode, using gunicorn:
-	gunicorn -w 4 -b 0.0.0.0:5000 http_app_audio.http_app_audio:app
+	gunicorn -w 1 -b 0.0.0.0:5000 http_app_audio.http_app_audio:app
+
+	# More than one worker only after we have shared indexing between threads..
+	# gunicorn -w 4 -b 0.0.0.0:5000 http_app_audio.http_app_audio:app
 fi
