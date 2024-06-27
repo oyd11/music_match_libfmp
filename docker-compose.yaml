@@ -7,5 +7,5 @@ services:
     volumes:
       - .:/app_hotswap
     command:
-      /app/run_server.sh
-      # /app/run_server.sh dev
+      # /app/run_server.sh
+      /app/run_server.sh dev
