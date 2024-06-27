@@ -2,8 +2,8 @@
 
 import logging
 from dataclasses import dataclass
-
 from typing import Dict
+from os.path import basename
 
 
 import numpy as np
@@ -181,15 +181,15 @@ def query_all(fn_Q):
     logging.info(f'QUERY for: {fn_Q}: {num_indexed=}')
     ind = 0
     for hash_key, Cmap_D in g_indexed_cmaps.items():
-        filename = g_indexed_info[hash_key].filename
+        name = basename(g_indexed_info[hash_key].filename)
 
         num_matches, offset_sec = find_matches_DQ(Cmap_D, Cmap_Q, bin_seconds)
 
-        logging.info(f'{num_matches=} {offset_sec=} {filename=}')
+        logging.info(f'{num_matches=} {offset_sec=} {name=}')
 
         matches_count[ind] = num_matches
         offsets[ind] = offset_sec
-        filenames[ind] = filename
+        filenames[ind] = name
 
         ind += 1
 
@@ -200,8 +200,8 @@ def query_all(fn_Q):
 
     ind_argmax = np.argmax(matches_count)
 
-    num_matches = matches_count[ind_argmax]
-    offset_sec = offsets[ind_argmax]
+    num_matches = int(matches_count[ind_argmax])
+    offset_sec = float(offsets[ind_argmax])
     target_filename = filenames[ind_argmax]
     choice_info = (target_filename, offset_sec, num_matches)
 
