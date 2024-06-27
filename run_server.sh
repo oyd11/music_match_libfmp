@@ -9,17 +9,18 @@ BASE_FOLDER="$(dirname "$0")"
 HOTSWAP_FOLDER="../app_hotswap"
 UPLOADS_FOLDER="$BASE_FOLDER/uploads"
 
-echo FOlders: $BASE_FOLDER , $UPLOADS_FOLDER
+echo Folders: BASE_FOLDER=$BASE_FOLDER , UPLOADS_FOLDER=$UPLOADS_FOLDER
 cd $BASE_FOLDER
 
 . ./venv.sh
 
-
-if [ -d $HOTSWAP_FOLDER ]; then
-     echo "Using Hotswap folder: $HOTSWAP_FOLDER"
-     mkdir -p $HOTSWAP_FOLDER/uploads || exit 1
-     ln -s $HOTSWAP_FOLDER/uploads uploads || exit 1
-fi
+if [ ! -d $UPLOADS_FOLDER ]; then
+	if [ -d $HOTSWAP_FOLDER ]; then
+		echo "Using Hotswap folder: $HOTSWAP_FOLDER"
+		mkdir -p $HOTSWAP_FOLDER/uploads || exit 1
+		ln -s $HOTSWAP_FOLDER/uploads uploads || exit 1
+	fi # hotswap
+fi # uploads did not exist
 
 mkdir -p $UPLOADS_FOLDER/index || exit 1
 mkdir -p $UPLOADS_FOLDER/query || exit 1
