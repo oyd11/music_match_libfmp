@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Set environment variables
-# ENV PYTHONUNBUFFERED TRUE
+ENV PYTHONUNBUFFERED TRUE
 
 # export port
 EXPOSE 5000
