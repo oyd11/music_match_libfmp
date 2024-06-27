@@ -21,7 +21,7 @@ sudo docker compose up
 pip install -r requirements.txt  # install required packages into venv
 
 ./run_server.sh      # setup expected folders, and run server, on port 5000, production version
-./run_server.sh dev  # same, but run unsafe debug version
+./run_server.sh dev  # same, but run unsafe hot-code-reloading version
 ```
 
 ## Indexing and querying
@@ -85,3 +85,14 @@ pip install -r requirements.txt  # install required packages into venv
 # wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.local/bin/yt-dlp
 ./dl_example_songs.sh  # download URLs extracted from example_songs.md, into './input_audio
 ```
+
+## Web browser URLS
+
+ * http://127.0.0.1:5001/upload  - upload and query via a web form
+ * http://127.0.0.1:5001/audio_db - list local files
+
+## known issues
+
+ * Tracks do no re-hash automatically after closing
+ * the 'dev' version somehow doesn't work in Docker
+ * very slow, brute force for now; No Constellation-Hashing or any hashing applied yet
