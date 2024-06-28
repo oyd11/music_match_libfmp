@@ -171,6 +171,7 @@ def query_all(fn_Q):
 
     Y_Q, info_Q = compute_spectrogram(fn_Q)
     bin_seconds = info_Q['bin_sec']
+    logger.info(f'QUERY_ALL: {fn_Q} info: {info_Q}')
     Cmap_Q = compute_constellation_map(Y_Q, dist_freq, dist_time)
 
     num_indexed = len(g_indexed_info)
@@ -195,15 +196,14 @@ def query_all(fn_Q):
 
     stats = tuple(zip(matches_count, offsets, filenames))
 
-    logger.info(
-        f'QUERY_ALL: vs: {fn_Q} info: {info_Q} -> {num_indexed=} {stats=}')
-
     ind_argmax = np.argmax(matches_count)
 
     num_matches = int(matches_count[ind_argmax])
     offset_sec = float(offsets[ind_argmax])
     target_filename = filenames[ind_argmax]
     choice_info = (target_filename, offset_sec, num_matches)
+
+    logger.info(f'QUERY_ALL: {fn_Q} {choice_info=} {num_indexed=} {stats=}')
 
     return choice_info, stats
 

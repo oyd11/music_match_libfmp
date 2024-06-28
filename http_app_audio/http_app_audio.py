@@ -16,6 +16,7 @@ logging.basicConfig(
 
 app = Flask(__name__)
 
+
 # Set up directories relative to the current working directory
 BASE_DIR = realpath(path.dirname(path.abspath(__file__)))
 INDEX_UPLOAD_FOLDER = realpath(path.join(
@@ -42,8 +43,9 @@ def get_filename(request):
     return secure_filename(file.filename), 200
 
 
-# Testing hack
-do_query = None
+
+
+## API endpoints
 
 
 @app.route('/api/index', methods=['POST'])
@@ -98,6 +100,10 @@ def query():
         200)
 
 
+# Testing hack: save a closure for 'query_1', a query on one reference
+do_query = None
+
+
 @app.route('/api/index_1', methods=['POST'])
 def index_1():
     s, ret_code = get_filename(request)
@@ -145,7 +151,6 @@ def query_1():
         200)
 
 
-
 @app.route('/audio_db')
 def audio_db():
     files = os.listdir(app.config['INDEX_UPLOAD_FOLDER'])
@@ -158,14 +163,28 @@ def api_audio_db():
     return jsonify({"files": files})
 
 
+# Pages
+
+
 @app.route('/upload')
 def upload():
     return render_template('upload.html')
 
 
 @app.route('/')
-def main():
-    return render_template('main.html')
+@app.route('/upload_and_record')
+def upload_and_record():
+    return render_template('upload_and_record.html')
+
+
+# @app.route('/')
+# def main():
+#     return render_template('main.html')
+
+
+# @app.route('/favicon.ico')
+# def favicon():
+#     return send_from_directory(app.root_path, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 if __name__ == '__main__':

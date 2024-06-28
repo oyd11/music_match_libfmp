@@ -4,6 +4,10 @@ Playing with Musical Fingerprints, With the Jupyter notebooks provided at:
 
 https://www.audiolabs-erlangen.de/resources/MIR/FMP/C7/C7S1_AudioIdentification.html
 
+##
+
+![web browser recording test](record-web.png "recording")
+
 ## Running server in Docker
 
 ```bash
@@ -34,7 +38,7 @@ Example scripts (require audio)
 ```bash
 ✗ ./index_example.sh 5000  # index example files, to port 5000, or 5001 in the Docker example
 # Or:
-✗ ./index_all.sh 5001  # iterate all files
+✗ ./index_all.sh 5001 10 # iterate all files: PORT MAX_COUNT - stop after MAX_COUNT files
 ```
 
 Yields:
@@ -105,7 +109,8 @@ Yields:
 
 ## Web browser URLS
 
- * http://127.0.0.1:5001/upload  - upload and query via a web form
+ * http://127.0.0.1:5001/         - Record audio from browser and upload as query, as in screenshot above
+ * http://127.0.0.1:5001/upload   - upload for indexin or query via a web form
  * http://127.0.0.1:5001/audio_db - list local files
 
 ## known issues
@@ -113,3 +118,4 @@ Yields:
  * Tracks do no re-hash automatically after closing
  * the 'dev' version somehow doesn't work in Docker
  * very slow, brute force for now; No Constellation-Hashing or any hashing applied yet
+

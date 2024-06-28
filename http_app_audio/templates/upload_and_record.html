@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload and Record Audio</title>
+    <style>
+        #recordingTimer {
+            width: 100px;
+            height: 50px;
+            border: 2px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s ease;
+            padding: 20px;
+        }
+
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+
+        .light-mode {
+            background-color: white;
+            color: #333;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            border-radius: 4px;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>Upload or Record Audio</h1>
+
+    <button onclick="toggleDarkMode()">Dark/Light-mode</button>
+
+    <!-- File Upload Section -->
+    <h2>Upload Audio File</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="audioFile" name="file" accept="audio/*">
+        <button type="button" onclick="uploadFile()">Upload</button>
+    </form>
+
+    <!-- Audio Recording Section -->
+    <h2>Record Audio</h2>
+    <div>
+        <label for="bitRate">Bit Rate (VBR):</label>
+        <select id="bitRate">
+            <option value="6000">6 kbps</option>
+            <option value="24000">24 kbps</option>
+            <option value="64000" selected>64 kbps</option>
+            <option value="128000">128 kbps</option>
+        </select>
+    </div>
+    <button id="recordButton" onclick="startRecording()">Start Recording</button>
+    <button id="stopButton" onclick="stopRecording()" disabled>Stop Recording</button>
+    <div id="recordingTimer">0</div>
+    <audio id="audioPlayback" controls></audio>
+    <button id="uploadRecordedAudio" onclick="uploadRecordedAudio()" disabled>Upload Recorded Audio</button>
+
+    <script>
+
+   function toggleDarkMode() {
+            // document.body.classList.toggle('light-mode');
+            document.body.classList.toggle('dark-mode');
+        }
+
+        document.body.classList.toggle('dark-mode');
+
+        let mediaRecorder;
+        let recordedChunks = [];
+        let mediaStream;
+        let fileName;
+        let timerInterval;
+        let recordingStartTime;
+
+        function uploadFile() {
+            const formData = new FormData();
+            const fileInput = document.getElementById('audioFile');
+            if (fileInput.files.length === 0) {
+                alert("Please select a file first");
+                return;
+            }
+            formData.append('file', fileInput.files[0]);
+
+            fetch('/api/query', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => alert(`Message: ${data.message}\nChoice: ${data.choice}`))
+            .catch(error => console.error('Error:', error));
+        }
+
+        function startRecording() {
+            const bitRate = document.getElementById('bitRate').value;
+
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaStream = stream;
+                    const options = { mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: parseInt(bitRate) };
+                    mediaRecorder = new MediaRecorder(stream, options);
+                    recordedChunks = [];
+
+                    mediaRecorder.ondataavailable = event => {
+                        if (event.data.size > 0) {
+                            recordedChunks.push(event.data);
+                        }
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(recordedChunks, { type: 'audio/webm;codecs=opus' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audioPlayback = document.getElementById('audioPlayback');
+                        audioPlayback.src = audioUrl;
+
+                        // Generate the dynamic file name based on the current epoch time
+                        const epochSeconds = Math.floor(Date.now() / 1000);
+                        fileName = `${epochSeconds}.opus`;
+                        audioPlayback.setAttribute('download', fileName);
+
+                        // Create a link to download the audio file
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = audioUrl;
+                        downloadLink.download = fileName;
+                        downloadLink.textContent = 'Download recorded audio|';
+                        document.body.appendChild(downloadLink);
+
+                        document.getElementById('uploadRecordedAudio').disabled = false;
+
+                        // Stop all tracks to turn off the recording red light
+                        mediaStream.getTracks().forEach(track => track.stop());
+
+                        // Clear the recording timer
+                        clearInterval(timerInterval);
+                        document.getElementById('recordingTimer').textContent = '0';
+                    };
+
+                    mediaRecorder.start();
+                    document.getElementById('recordButton').disabled = true;
+                    document.getElementById('stopButton').disabled = false;
+
+                    // Start the recording timer
+                    recordingStartTime = Date.now();
+                    timerInterval = setInterval(() => {
+                        // const elapsedSeconds = Math.floor((Date.now() - recordingStartTime) / 1000);
+                        const elapsedSeconds = ((Date.now() - recordingStartTime) / 1000);
+                        const secondsStr = elapsedSeconds.toFixed(2);
+                        document.getElementById('recordingTimer').textContent = secondsStr;
+                    }, 10);
+                })
+                .catch(error => console.error('Error accessing media devices.', error));
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            document.getElementById('recordButton').disabled = false;
+            document.getElementById('stopButton').disabled = true;
+        }
+
+        function uploadRecordedAudio() {
+            const audioBlob = new Blob(recordedChunks, { type: 'audio/webm;codecs=opus' });
+            const formData = new FormData();
+            formData.append('file', audioBlob, fileName);
+
+            fetch('/api/query', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => alert(`Message: ${data.message}\nChoice: ${data.choice}`))
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
